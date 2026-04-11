@@ -1,0 +1,40 @@
+body {
+    background: linear-gradient(120deg, #1e3c72, #2a5298);
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+.container {
+    width: 40%;
+    margin: 100px auto;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+input[type="file"] {
+    margin: 15px 0;
+}
+
+button {
+    padding: 10px 25px;
+    border: none;
+    background: #00c6ff;
+    color: black;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #00f2fe;
+}
+
+.error {
+    color: #ff4c4c;
+}

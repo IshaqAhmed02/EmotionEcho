@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — VoxEmo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080b14;
+      --surface: #0e1422;
+      --border: #1c2540;
+      --accent: #00f5c4;
+      --accent2: #7b5fff;
+      --danger: #ff4e6a;
+      --text: #e8eeff;
+      --muted: #5a6490;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,245,196,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,196,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridPulse 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes gridPulse {
+      0%,100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      animation: orbFloat linear infinite;
+    }
+    .orb1 { width: 400px; height: 400px; background: rgba(0,245,196,0.08); top: -100px; left: -100px; animation-duration: 20s; }
+    .orb2 { width: 300px; height: 300px; background: rgba(123,95,255,0.1); bottom: -50px; right: -50px; animation-duration: 15s; animation-direction: reverse; }
+    @keyframes orbFloat {
+      0% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(30px,20px) scale(1.05); }
+      66% { transform: translate(-20px,30px) scale(0.95); }
+      100% { transform: translate(0,0) scale(1); }
+    }
+
+    /* Sound wave bars */
+    .wave-bg {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      padding: 0 20px;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .wave-bar {
+      flex: 1;
+      background: linear-gradient(to top, var(--accent), var(--accent2));
+      border-radius: 2px 2px 0 0;
+      animation: waveAnim 1.2s ease-in-out infinite;
+    }
+    @keyframes waveAnim {
+      0%,100% { transform: scaleY(0.3); }
+      50% { transform: scaleY(1); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 10;
+      width: 420px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      box-shadow: 0 0 60px rgba(0,245,196,0.05), 0 40px 80px rgba(0,0,0,0.6);
+      animation: cardIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(40px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .logo-area {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .logo-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      animation: iconPulse 3s ease-in-out infinite;
+      box-shadow: 0 0 30px rgba(0,245,196,0.3);
+    }
+    @keyframes iconPulse {
+      0%,100% { box-shadow: 0 0 20px rgba(0,245,196,0.2); }
+      50% { box-shadow: 0 0 40px rgba(0,245,196,0.5); }
+    }
+    .logo-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .logo-title span { color: var(--accent); }
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .flashes { margin-bottom: 16px; }
+    .flash-msg {
+      background: rgba(255,78,106,0.1);
+      border: 1px solid rgba(255,78,106,0.3);
+      color: var(--danger);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    input[type="text"], input[type="password"], input[type="email"] {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,245,196,0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--accent), #00c9a7);
+      color: #080b14;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,245,196,0.35); }
+    .btn:hover::after { opacity: 1; }
+    .btn:active { transform: translateY(0); }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 2px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .link-row {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .link-row a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .link-row a:hover { opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <div class="wave-bg" id="waveBg"></div>
+
+  <div class="card">
+    <div class="logo-area">
+      <div class="logo-icon">🎙️</div>
+      <div class="logo-title">Vox<span>Emo</span></div>
+      <div class="logo-sub">Voice Emotion Detection</div>
+    </div>
+
+    <h2>Welcome back</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flashes">
+          {% for msg in messages %}
+            <div class="flash-msg">⚠ {{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter your username" required />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn">LOGIN →</button>
+    </form>
+
+    <div class="divider">OR</div>
+
+    <div class="link-row">
+      Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a>
+    </div>
+    <div class="link-row" style="margin-top:10px;">
+      <a href="{{ url_for('about') }}">← About this project</a>
+    </div>
+  </div>
+
+  <script>
+    // Generate wave bars
+    const waveBg = document.getElementById('waveBg');
+    for (let i = 0; i < 80; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'wave-bar';
+      bar.style.animationDelay = `${(i * 0.05) % 1.2}s`;
+      bar.style.height = `${20 + Math.random() * 80}px`;
+      waveBg.appendChild(bar);
+    }
+  </script>
+</body>
+</html>

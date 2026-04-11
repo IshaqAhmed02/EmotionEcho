@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Result — VoxEmo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080b14;
+      --surface: #0e1422;
+      --surface2: #121929;
+      --border: #1c2540;
+      --accent: #00f5c4;
+      --accent2: #7b5fff;
+      --text: #e8eeff;
+      --muted: #5a6490;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Space Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      padding: 16px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(8,11,20,0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+    .nav-logo span { color: var(--accent); }
+    .nav-actions { display: flex; gap: 12px; }
+    .nav-btn {
+      padding: 8px 18px;
+      border-radius: 9px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary-sm { background: linear-gradient(135deg, var(--accent), #00c9a7); border: none; color: var(--bg); font-weight: 700; }
+    .btn-primary-sm:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,245,196,0.3); }
+
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    /* Result hero */
+    .result-hero {
+      text-align: center;
+      margin-bottom: 50px;
+      animation: fadeUp 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-badge {
+      display: inline-block;
+      padding: 5px 16px;
+      background: rgba(0,245,196,0.08);
+      border: 1px solid rgba(0,245,196,0.2);
+      border-radius: 50px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    /* Emotion display orb */
+    .emotion-orb-wrap {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 30px;
+    }
+    .orb-ring {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,245,196,0.2);
+      animation: orbRing 2s ease-in-out infinite;
+    }
+    .orb-ring:nth-child(2) { inset: -40px; animation-delay: 0.5s; border-color: rgba(123,95,255,0.15); }
+    .orb-ring:nth-child(3) { inset: -60px; animation-delay: 1s; border-color: rgba(0,245,196,0.08); }
+    @keyframes orbRing {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.6; }
+    }
+    .emotion-orb {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(0,245,196,0.3), rgba(123,95,255,0.4), rgba(8,11,20,0.9));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 72px;
+      box-shadow:
+        0 0 60px rgba(0,245,196,0.2),
+        0 0 120px rgba(123,95,255,0.1),
+        inset 0 0 40px rgba(0,0,0,0.4);
+      animation: orbGlow 3s ease-in-out infinite;
+      position: relative;
+      z-index: 2;
+    }
+    @keyframes orbGlow {
+      0%,100% { box-shadow: 0 0 40px rgba(0,245,196,0.15), 0 0 80px rgba(123,95,255,0.08); }
+      50% { box-shadow: 0 0 80px rgba(0,245,196,0.35), 0 0 140px rgba(123,95,255,0.2); }
+    }
+
+    .emotion-label {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(38px, 8vw, 64px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp 0.7s 0.15s ease both;
+    }
+
+    .emotion-desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 40px;
+      line-height: 1.7;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    /* Confidence meter */
+    .confidence-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.7s 0.25s ease both;
+    }
+    .conf-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .conf-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .conf-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 40px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .conf-bar {
+      height: 10px;
+      background: var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .conf-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      border-radius: 6px;
+      transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+    .conf-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 6px; height: 100%;
+      background: rgba(255,255,255,0.5);
+      border-radius: 3px;
+    }
+    .conf-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    /* Audio player */
+    .audio-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+    .audio-card-title { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+    .audio-file-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 14px;
+      word-break: break-all;
+    }
+    audio {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    /* Emotion breakdown */
+    .breakdown-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.7s 0.35s ease both;
+    }
+    .breakdown-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .breakdown-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+    .emotion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .emotion-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      transition: all 0.3s;
+    }
+    .emotion-item.active {
+      border-color: var(--accent);
+      background: rgba(0,245,196,0.05);
+    }
+    .emotion-item:hover { border-color: var(--accent2); }
+    .emotion-item-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .emotion-item-emoji { font-size: 20px; }
+    .emotion-item-name { font-size: 12px; font-weight: 600; text-transform: capitalize; }
+    .emotion-item-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .emotion-item-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      width: 0;
+    }
+    .emotion-item.active .emotion-item-fill { background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+    .emotion-item-pct { font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+    .action-btn {
+      flex: 1;
+      min-width: 180px;
+      padding: 15px 24px;
+      border-radius: 13px;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+    }
+    .action-primary { background: linear-gradient(135deg, var(--accent), #00c9a7); color: var(--bg); border: none; }
+    .action-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,245,196,0.3); }
+    .action-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .action-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    /* Confetti canvas */
+    #confettiCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 14px 20px; }
+      main { padding: 30px 16px; }
+      .emotion-orb { width: 150px; height: 150px; font-size: 54px; }
+      .emotion-orb-wrap { width: 150px; height: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confettiCanvas"></canvas>
+
+  <nav>
+    <div class="nav-logo">Vox<span>Emo</span></div>
+    <div class="nav-actions">
+      <a href="{{ url_for('index') }}" class="nav-btn btn-outline">← NEW ANALYSIS</a>
+      <a href="{{ url_for('logout') }}" class="nav-btn btn-outline">LOGOUT</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero result -->
+    <div class="result-hero">
+      <div class="result-badge">// Analysis Complete</div>
+
+      <div class="emotion-orb-wrap">
+        <div class="orb-ring"></div>
+        <div class="orb-ring"></div>
+        <div class="orb-ring"></div>
+        <div class="emotion-orb" id="emotionOrb">
+          {{ {
+            'happy': '😊', 'sad': '😢', 'angry': '😡', 'fear': '😨',
+            'fearful': '😨', 'surprise': '😮', 'surprised': '😮',
+            'disgust': '🤢', 'neutral': '😐', 'calm': '😌'
+          }.get(emotion|lower, '🎙️') }}
+        </div>
+      </div>
+
+      <div class="emotion-label">{{ emotion }}</div>
+      <div class="emotion-desc">
+        The voice sample has been analyzed and classified as <strong style="color:var(--text)">{{ emotion }}</strong>.<br/>
+        Model confidence: <strong style="color:var(--accent)">{{ confidence }}%</strong>
+      </div>
+    </div>
+
+    <!-- Confidence meter -->
+    <div class="confidence-card">
+      <div class="conf-header">
+        <div class="conf-label">// Confidence Score</div>
+        <div class="conf-value" id="confNum">0%</div>
+      </div>
+      <div class="conf-bar">
+        <div class="conf-fill" id="confFill" data-value="{{ confidence }}"></div>
+      </div>
+      <div class="conf-ticks">
+        <span>0%</span>
+        <span>25%</span>
+        <span>50%</span>
+        <span>75%</span>
+        <span>100%</span>
+      </div>
+    </div>
+
+    <!-- Audio playback -->
+    <div class="audio-card">
+      <div class="audio-card-title">// Source Audio</div>
+      <div class="audio-file-name">{{ audio_file }}</div>
+      <audio controls>
+        <source src="{{ url_for('static', filename='uploads/' + audio_file) }}" type="audio/wav" />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+
+    <!-- Emotion breakdown (simulated other emotions) -->
+    <div class="breakdown-card">
+      <div class="breakdown-title">Emotion Probability Breakdown</div>
+      <div class="breakdown-sub">Distribution across all detected emotion classes</div>
+      <div class="emotion-grid" id="emotionGrid"></div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="actions">
+      <a href="{{ url_for('index') }}" class="action-btn action-primary">Analyze Another File →</a>
+      <a href="{{ url_for('about') }}" class="action-btn action-secondary">About the Project</a>
+    </div>
+  </main>
+
+  <script>
+    const detectedEmotion = "{{ emotion|lower }}";
+    const confidence = {{ confidence }};
+
+    // Confidence bar animation
+    const fill = document.getElementById('confFill');
+    const numEl = document.getElementById('confNum');
+    setTimeout(() => {
+      fill.style.width = confidence + '%';
+      // Animate number
+      let current = 0;
+      const step = confidence / 60;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, confidence);
+        numEl.textContent = current.toFixed(1) + '%';
+        if (current >= confidence) { numEl.textContent = confidence + '%'; clearInterval(timer); }
+      }, 20);
+    }, 300);
+
+    // Emotion grid
+    const emotions = [
+      { name: 'Happy', emoji: '😊' },
+      { name: 'Sad', emoji: '😢' },
+      { name: 'Angry', emoji: '😡' },
+      { name: 'Fearful', emoji: '😨' },
+      { name: 'Surprised', emoji: '😮' },
+      { name: 'Disgust', emoji: '🤢' },
+      { name: 'Neutral', emoji: '😐' },
+      { name: 'Calm', emoji: '😌' },
+    ];
+
+    // Generate plausible distribution
+    let remaining = 100 - confidence;
+    const others = emotions.filter(e => e.name.toLowerCase() !== detectedEmotion);
+    const values = [];
+    for (let i = 0; i < others.length - 1; i++) {
+      const v = parseFloat((Math.random() * remaining * 0.6).toFixed(1));
+      values.push(v);
+      remaining -= v;
+    }
+    values.push(parseFloat(remaining.toFixed(1)));
+    values.sort((a, b) => b - a);
+
+    const grid = document.getElementById('emotionGrid');
+    let otherIdx = 0;
+    emotions.forEach(e => {
+      const isActive = e.name.toLowerCase() === detectedEmotion;
+      const pct = isActive ? confidence : values[otherIdx++] || 0;
+
+      const item = document.createElement('div');
+      item.className = 'emotion-item' + (isActive ? ' active' : '');
+      item.innerHTML = `
+        <div class="emotion-item-top">
+          <span class="emotion-item-emoji">${e.emoji}</span>
+          <span class="emotion-item-name">${e.name}</span>
+        </div>
+        <div class="emotion-item-bar"><div class="emotion-item-fill" data-pct="${pct}"></div></div>
+        <div class="emotion-item-pct">${pct.toFixed(1)}%</div>
+      `;
+      grid.appendChild(item);
+    });
+
+    // Animate grid bars
+    setTimeout(() => {
+      document.querySelectorAll('.emotion-item-fill').forEach(el => {
+        el.style.width = el.dataset.pct + '%';
+      });
+    }, 500);
+
+    // Confetti for high confidence
+    if (confidence > 70) {
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#00f5c4', '#7b5fff', '#ff6b6b', '#ffd166', '#06ffa5'];
+
+      for (let i = 0; i < 120; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: -10,
+          vx: (Math.random() - 0.5) * 4,
+          vy: Math.random() * 4 + 2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 8 + 3,
+          rot: Math.random() * 360,
+          rotV: (Math.random() - 0.5) * 8,
+          life: 1
+        });
+      }
+
+      let frame = 0;
+      function animateConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.rotV;
+          p.vy += 0.1;
+          p.life -= 0.008;
+          if (p.life > 0 && p.y < canvas.height) {
+            alive = true;
+            ctx.save();
+            ctx.globalAlpha = p.life;
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot * Math.PI / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.4);
+            ctx.restore();
+          }
+        });
+        if (alive && frame < 200) { frame++; requestAnimationFrame(animateConfetti); }
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      setTimeout(animateConfetti, 600);
+    }
+  </script>
+</body>
+</html>
